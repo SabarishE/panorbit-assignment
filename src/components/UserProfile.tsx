@@ -14,7 +14,6 @@ import { UserInterface } from "types/user";
 import { Layout } from "components/layout/Layout";
 import Loader from "components/Loader";
 import Map from "react-map-gl";
-import { MAPBOX_ACCESS_TOKEN } from "config/config";
 
 export const UserProfile = () => {
   const authContextValues = useContext(AuthContext);
@@ -107,7 +106,7 @@ const UserProfileRightBlock = ({ user }: { user: UserInterface }) => {
           zoom: 1,
         }}
         style={{ width: isMobile ? 300 : 650, height: isMobile ? 250 : 400 }}
-        mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
+        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
         attributionControl={false}
         mapStyle="mapbox://styles/mapbox/streets-v12"
       />
