@@ -7,30 +7,29 @@ import {
   Box,
   chakra,
   InputGroup,
-  InputRightElement,
   Input,
-  Button,
   IconButton,
 } from "@chakra-ui/react";
 import { AuthContext } from "context/userContext";
-import { FormEvent, useContext, useEffect, useRef, useState } from "react";
-import Loader from "./Loader";
-import { StyledBox } from "components/Layout";
+import { FormEvent, useContext, useState } from "react";
+import Loader from "components/Loader";
+import { StyledBox } from "components/layout/Layout";
 import { ChatRight } from "@emotion-icons/bootstrap/ChatRight";
 import { ChevronUp } from "@emotion-icons/bootstrap/ChevronUp";
 import { ChevronDown } from "@emotion-icons/bootstrap/ChevronDown";
 import { Close } from "@emotion-icons/evaicons-solid/Close";
 import { Send } from "@emotion-icons/boxicons-solid/Send";
+import { UserInterface } from "types/user";
 
 export const ChatDrawer = () => {
-  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedUser, setSelectedUser] = useState<UserInterface>();
 
   const authContextValues = useContext(AuthContext);
 
   if (!authContextValues) {
     return null;
   }
-  const { user, allUsers, logout } = authContextValues;
+  const { allUsers } = authContextValues;
 
   if (!allUsers) {
     return <Loader />;
@@ -57,7 +56,13 @@ export const ChatDrawer = () => {
         {isUserChatOpen && (
           <UserChatDrawer onClose={onUserChatClose} user={selectedUser} />
         )}
-        <VStack maxH="350px" w="250px" borderRadius="8px 8px 0 0" spacing={0}>
+        <VStack
+          maxH="350px"
+          w="250px"
+          borderRadius="8px 8px 0 0"
+          spacing={0}
+          bg="white"
+        >
           <HStack
             bg="#2C65C8"
             color="white"
@@ -76,9 +81,9 @@ export const ChatDrawer = () => {
             </Text>
             <chakra.span>
               {isOpen ? (
-                <ChevronUp color="white" size="18px" />
-              ) : (
                 <ChevronDown color="white" size="18px" />
+              ) : (
+                <ChevronUp color="white" size="18px" />
               )}
             </chakra.span>
           </HStack>
@@ -97,7 +102,7 @@ export const ChatDrawer = () => {
                       justifyContent="center"
                       onClick={() => {
                         if (index % 2 === 0) {
-                          setSelectedUser(userData.name);
+                          setSelectedUser(userData);
                           onUserChatOpen();
                         }
                       }}
@@ -144,7 +149,7 @@ const UserChatDrawer = ({
   user,
 }: {
   onClose: () => void;
-  user: string;
+  user?: UserInterface;
 }) => {
   const [chat, setChat] = useState("");
 
@@ -152,6 +157,9 @@ const UserChatDrawer = ({
     e.preventDefault();
 
     sampleChat.push({ address: "me", message: chat });
+
+    // Scrolling the chat window to bottom after sending a message
+    // inside a timeout function so that scrolling will happen only after chat message is added to chat array
 
     setTimeout(() => {
       var chatBlock = document.getElementById("chatBlock") as HTMLElement;
@@ -162,7 +170,13 @@ const UserChatDrawer = ({
   };
 
   return (
-    <VStack maxH="200px" w="250px" borderRadius="8px 8px 0 0" spacing={0}>
+    <VStack
+      maxH="250px"
+      w="250px"
+      borderRadius="8px 8px 0 0"
+      spacing={0}
+      bg="white"
+    >
       <HStack
         bg="#2C65C8"
         color="white"
@@ -172,9 +186,10 @@ const UserChatDrawer = ({
         px={4}
         justifyContent="space-between"
       >
-        <Text fontSize="18px">
-          <chakra.span px={4}>user</chakra.span>
-        </Text>
+        <HStack fontSize="16px">
+          <Image src={user?.profilepicture} w="24px" borderRadius="50%" />
+          <chakra.span>{user?.name}</chakra.span>
+        </HStack>
         <chakra.span onClick={onClose} cursor="pointer">
           <Close color="white" size="18px" />
         </chakra.span>
@@ -189,17 +204,18 @@ const UserChatDrawer = ({
           mb="50px"
           id="chatBlock"
         >
-          {sampleChat.map((chat) => {
+          {sampleChat.map((chat, index) => {
             const isMyChat = chat.address === "me";
             return (
               <Box
+                key={index}
                 pos="relative"
                 right={isMyChat ? "-50%" : "none"}
                 left={!isMyChat ? "0" : "none"}
                 my={1}
-                bg="#F1F1F1"
+                bg="#d8d8d8"
                 maxW="50%"
-                borderRadius="4px"
+                borderRadius="8px"
                 pl={1}
               >
                 {chat.message}
@@ -208,11 +224,23 @@ const UserChatDrawer = ({
           })}
         </StyledBox>
         <form onSubmit={handleSubmit}>
-          <InputGroup pos="absolute" bottom="0" left="0" right="0" w="100%">
+          <InputGroup
+            pos="absolute"
+            bottom="0"
+            left="0"
+            right="0"
+            w="100%"
+            _focus={{ outline: "none" }}
+            _active={{}}
+            border="none"
+            outline="none"
+            borderTop="1px solid #2C65C8"
+          >
             <Input
               type="text"
               placeholder="type here..."
-              _focus={{}}
+              _focus={{ outline: "none" }}
+              _active={{}}
               border="none"
               outline="none"
               value={chat}
@@ -222,6 +250,9 @@ const UserChatDrawer = ({
               aria-label="chat-submit"
               type="submit"
               icon={<Send color="#2C65C8" size="24px" />}
+              bg="transparent"
+              _hover={{}}
+              _active={{}}
             />
           </InputGroup>
         </form>

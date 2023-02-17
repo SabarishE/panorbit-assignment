@@ -1,6 +1,6 @@
 import { Box, Text } from "@chakra-ui/react";
 
-export const CommingSoon = ({ userId }: { userId: string }) => {
+export const CommingSoon = () => {
   return (
     <Box w="100%" h="100%" pos="relative">
       <Text
